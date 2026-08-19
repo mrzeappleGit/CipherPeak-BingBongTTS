@@ -68,4 +68,5 @@ TikTok publishes no documented, permitted TTS API. The TikTok provider exists be
 interface but ships **disabled** and will not scrape — it only activates if you supply your own
 endpoint. With it selected and unconfigured, the mod logs the reason and falls back to ElevenLabs.
 
-Full docs, troubleshooting and architecture notes are in the source repository.
+Full docs, troubleshooting and architecture notes are in the
+[source repository](https://github.com/mrzeappleGit/CipherPeak-BingBongTTS).
