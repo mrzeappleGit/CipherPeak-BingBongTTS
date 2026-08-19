@@ -1,0 +1,11 @@
+bin/
+obj/
+dist/
+*.user
+.vs/
+.idea/
+
+# Never commit real credentials. Only the .example file belongs in git.
+config/*.cfg
+!config/*.cfg.example
+secrets.*

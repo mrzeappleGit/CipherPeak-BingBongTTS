@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>CipherPeak.Core</AssemblyName>
+    <RootNamespace>CipherPeak.Core</RootNamespace>
+    <!-- No Unity, no BepInEx, no Photon in here. That is what makes it testable. -->
+  </PropertyGroup>
+
+</Project>

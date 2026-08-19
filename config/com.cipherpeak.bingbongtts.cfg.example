@@ -1,0 +1,151 @@
+## Example configuration for CipherPeak Bing Bong TTS.
+##
+## Copy to  <PEAK>/BepInEx/config/com.cipherpeak.bingbongtts.cfg  and edit.
+## The real file is git-ignored. Every credential below is a PLACEHOLDER - replace it, or better,
+## leave it empty and use the environment variables noted next to each one.
+##
+## Run the game once after installing the mod and BepInEx will write a fully commented file for you;
+## this example only exists so you can see the shape without launching.
+
+[General]
+
+## Master switch. When false no Twitch connection is made and no Bing Bongs are spawned.
+# Setting type: Boolean
+Enabled = true
+
+[Twitch]
+
+## Twitch channel to read, without the leading '#'.
+Channel = your_channel_name
+
+## Lowercase login of the account the OAuth token belongs to. Leave empty for anonymous read-only chat.
+Username =
+
+## OAuth token with the chat:read scope. Empty = anonymous read-only login.
+## Environment override: CIPHERPEAK_TWITCH_OAUTH
+OAuthToken =
+
+## Unity's Mono runtime often has no root certificate store. When true the client connects anyway
+## and logs a warning. Set false to refuse unverified certificates instead.
+AllowInsecureTls = true
+
+[Filter]
+
+MinMessageLength = 2
+MaxMessageLength = 200
+CommandPrefixes = !,/,.,?
+IgnoredUsers = nightbot,streamelements,streamlabs,moobot,fossabot,sery_bot
+BlockedWords =
+
+## Off = no profanity handling. Mask = bleep each swear and speak the rest. Block = drop the message.
+Profanity = Off
+
+## Extra word stems added to the built-in list. A stem also matches common suffixes
+## ('fuck' catches 'fucking') but only as a whole word, so 'grass' and 'Scunthorpe' stay clean.
+ProfanityWords =
+
+## Spoken in place of each swear when Profanity = Mask. Empty removes the word instead.
+ProfanityMask = beep
+
+BlockLinks = true
+DuplicateHistorySize = 25
+SubscribersOnly = false
+ModeratorsOnly = false
+ModeratorsBypassLimits = true
+
+[Queue]
+
+MaxQueuedMessages = 10
+PerUserCooldownSeconds = 20
+GlobalCooldownSeconds = 0
+GapBetweenMessagesSeconds = 0.5
+
+[TTS]
+
+## elevenlabs or tiktok
+DefaultProvider = elevenlabs
+
+## Alias from VoiceAliases used for chatters who have not picked one.
+DefaultVoiceAlias = default
+
+## Comma-separated 'alias=provider:voiceId'. Chat only ever sees the alias, so provider voice ids
+## never appear in the stream, and only aliases listed here can be selected.
+VoiceAliases = default=elevenlabs:21m00Tcm4TlvDq8ikWAM, narrator=elevenlabs:REPLACE_WITH_VOICE_ID
+
+## Let chatters run '!voice <alias>'.
+AllowVoiceCommand = false
+
+## ElevenLabs API key.  PLACEHOLDER - replace, or leave empty and set
+## the CIPHERPEAK_ELEVENLABS_API_KEY environment variable instead.
+ElevenLabsApiKey = sk_REPLACE_ME
+
+ElevenLabsModelId = eleven_multilingual_v2
+ElevenLabsOutputFormat = mp3_44100_64
+ElevenLabsStability = 0.5
+ElevenLabsSimilarityBoost = 0.75
+
+## TikTok publishes no public, permitted TTS API. The provider stays disabled unless you point this
+## at an endpoint you are allowed to use. See README, "TikTok limitation".
+TikTokEndpoint =
+
+## Environment override: CIPHERPEAK_TIKTOK_SESSION_ID
+TikTokSessionId =
+
+RequestTimeoutSeconds = 20
+MaxRetries = 2
+FallbackToOtherProvider = true
+CacheEnabled = true
+CacheMaxMegabytes = 64
+MaxAudioBytes = 524288
+
+[BingBong]
+
+## Empty auto-detects the prefab from the item database (normally 'BingBong').
+PrefabNameOverride =
+
+SpawnRadiusMeters = 3
+SpawnHeightOffsetMeters = 1.5
+LifecycleTickSeconds = 3
+
+## Past this distance from the nearest living scout a Bing Bong counts as lost and is replaced next
+## to the party. 0 disables it, so Bing Bongs stay exactly where they were left.
+MaxDistanceFromPlayersMeters = 0
+
+## This far below the nearest scout a Bing Bong counts as out of bounds and is replaced. 0 disables
+## it. Climbing past one triggers this as readily as dropping one does, hence the default.
+OutOfBoundsDropMeters = 0
+
+## Carry a Bing Bong without it counting toward your carry weight, in any slot. Applies to your own
+## character only, so every player who wants it needs the mod installed.
+Weightless = false
+
+## Give the Bing Bong its own inventory slot (id 249) instead of spending one of the normal three.
+## The slot sits outside the game's weight sum, so what is in it never weighs anything.
+## Equip it with the Hotkeys/BingBongSlot key - the game's scroll cycle only walks slots 0-3.
+DedicatedSlot = true
+
+## Horizontal nudge for the slot's HUD widget, in canvas units. 0 auto-places it beside the game's
+## temporary slot.
+SlotUiOffsetX = 0
+
+[Audio]
+
+## TTS volume, on top of the game's SFX slider.
+Volume = 1
+
+MinDistance = 3
+MaxDistance = 60
+AnimateMouth = true
+
+[Hotkeys]
+
+Skip = F7
+Clear = F8
+Toggle = F9
+
+## Equip or stow the dedicated Bing Bong slot.
+BingBongSlot = Alpha5
+
+## Open the wheel for the backpack on your own back, without dropping it first.
+## Set to None to leave the key alone for another mod.
+OpenBackpack = B

@@ -1,0 +1,41 @@
+<Project>
+
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <ModVersion>1.0.0</ModVersion>
+    <Version>$(ModVersion)</Version>
+    <Authors>Mrzeapple</Authors>
+  </PropertyGroup>
+
+  <!--
+    Location of the PEAK install. Only CipherPeak.Plugin needs this; Core and the
+    test project build without the game present.
+
+    Override order:  -p:PeakDir=...   >   PEAK_DIR env var   >   probed defaults.
+  -->
+  <PropertyGroup>
+    <PeakDir Condition="'$(PeakDir)' == '' and '$(PEAK_DIR)' != ''">$(PEAK_DIR)</PeakDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(PeakDir)' == ''">
+    <_PeakProbe1>C:\Program Files (x86)\Steam\steamapps\common\PEAK</_PeakProbe1>
+    <_PeakProbe2>D:\SteamLibrary\steamapps\common\PEAK</_PeakProbe2>
+    <_PeakProbe3>E:\SteamLibrary\steamapps\common\PEAK</_PeakProbe3>
+    <_PeakProbe4>F:\SteamLibrary\steamapps\common\PEAK</_PeakProbe4>
+    <_PeakProbe5>G:\SteamLibrary\steamapps\common\PEAK</_PeakProbe5>
+    <_PeakProbe6>H:\SteamLibrary\steamapps\common\PEAK</_PeakProbe6>
+    <_PeakProbe7>I:\SteamLibrary\steamapps\common\PEAK</_PeakProbe7>
+    <PeakDir Condition="Exists('$(_PeakProbe1)\PEAK_Data\Managed')">$(_PeakProbe1)</PeakDir>
+    <PeakDir Condition="'$(PeakDir)' == '' and Exists('$(_PeakProbe2)\PEAK_Data\Managed')">$(_PeakProbe2)</PeakDir>
+    <PeakDir Condition="'$(PeakDir)' == '' and Exists('$(_PeakProbe3)\PEAK_Data\Managed')">$(_PeakProbe3)</PeakDir>
+    <PeakDir Condition="'$(PeakDir)' == '' and Exists('$(_PeakProbe4)\PEAK_Data\Managed')">$(_PeakProbe4)</PeakDir>
+    <PeakDir Condition="'$(PeakDir)' == '' and Exists('$(_PeakProbe5)\PEAK_Data\Managed')">$(_PeakProbe5)</PeakDir>
+    <PeakDir Condition="'$(PeakDir)' == '' and Exists('$(_PeakProbe6)\PEAK_Data\Managed')">$(_PeakProbe6)</PeakDir>
+    <PeakDir Condition="'$(PeakDir)' == '' and Exists('$(_PeakProbe7)\PEAK_Data\Managed')">$(_PeakProbe7)</PeakDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PeakManagedDir>$(PeakDir)\PEAK_Data\Managed</PeakManagedDir>
+  </PropertyGroup>
+
+</Project>

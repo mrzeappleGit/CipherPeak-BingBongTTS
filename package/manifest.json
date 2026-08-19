@@ -1,0 +1,9 @@
+{
+  "name": "CipherPeak_BingBongTTS",
+  "version_number": "1.0.0",
+  "website_url": "",
+  "description": "Reads eligible Twitch chat aloud through two host-managed Bing Bongs, in 3D positional audio.",
+  "dependencies": [
+    "BepInEx-BepInExPack_PEAK-5.4.75301"
+  ]
+}
