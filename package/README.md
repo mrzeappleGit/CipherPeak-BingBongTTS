@@ -23,6 +23,14 @@ synchronised across the whole lobby.
 
 Everyone else in the lobby only needs the mod installed.
 
+## Reading your own chat instead
+
+Not hosting, but want your own chat read out? Set `Twitch/UseMyOwnChat = true` and fill in your own
+`Channel`, voices and API key. Your client reads your chat and plays it through a Bing Bong near you.
+
+Only you hear it — your chat is never sent to the lobby — so it needs no agreement from the host, and
+the host's chat keeps working normally for everyone else.
+
 ## Controls
 
 | | Chat (broadcaster/mods) | Hotkey |

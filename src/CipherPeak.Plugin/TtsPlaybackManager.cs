@@ -19,6 +19,9 @@ namespace CipherPeak.Plugin
     {
         private const string SourceObjectName = "CipherPeakTtsSource";
 
+        /// <summary>Upper bound for Audio/Volume. Past roughly this, amplification turns into clipping.</summary>
+        internal const float MaxVolume = 3f;
+
         private sealed class Job
         {
             public int MessageId;
@@ -181,7 +184,10 @@ namespace CipherPeak.Plugin
         private void ApplyAudioSettings(AudioSource source)
         {
             var audio = _settings().Audio;
-            source.volume = Mathf.Clamp01((float)audio.Volume);
+
+            // Above 1 Unity amplifies rather than clamps, which is the only way to get a TTS clip
+            // louder than the game's own sounds. Ceiling of 3 because past that it just clips.
+            source.volume = Mathf.Clamp((float)audio.Volume, 0f, MaxVolume);
             source.minDistance = Mathf.Max(0.1f, (float)audio.MinDistance);
             source.maxDistance = Mathf.Max(source.minDistance + 1f, (float)audio.MaxDistance);
         }

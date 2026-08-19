@@ -15,6 +15,11 @@ Enabled = true
 
 [Twitch]
 
+## Read your own Twitch chat instead of listening to the host's, using your own channel, filters,
+## voices and API key below. Only you hear it - your chat is never sent to the lobby - so it needs
+## no agreement from the host. Ignored when you are the host.
+UseMyOwnChat = false
+
 ## Twitch channel to read, without the leading '#'.
 Channel = your_channel_name
 
@@ -130,10 +135,15 @@ SlotUiOffsetX = 0
 
 [Audio]
 
-## TTS volume, on top of the game's SFX slider.
+## TTS volume, on top of the game's SFX slider. 1 matches the game's own sounds; above that
+## amplifies, up to 3. Past about 2.5 it starts to clip.
 Volume = 1
 
-MinDistance = 3
+## How far the voice carries at full volume before it starts falling off. Raising this is the most
+## effective way to make Bing Bongs louder at normal ranges.
+MinDistance = 10
+
+## Distance at which the voice is inaudible.
 MaxDistance = 60
 AnimateMouth = true
 

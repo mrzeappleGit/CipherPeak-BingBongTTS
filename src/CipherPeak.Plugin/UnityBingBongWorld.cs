@@ -127,6 +127,44 @@ namespace CipherPeak.Plugin
             return character != null ? character.Center : view.transform.position;
         }
 
+        /// <summary>
+        /// Where a client reading its own chat should speak from. The host has the director's handles
+        /// for this; a client has none, because only the host manages Bing Bongs.
+        ///
+        /// Preference order: one you are carrying, then the nearest Bing Bong within earshot, then
+        /// yourself. The last fallback matters - your own chat should never be silently dropped just
+        /// because the party has climbed away from every Bing Bong.
+        /// </summary>
+        internal int LocalSpeaker()
+        {
+            var local = Character.localCharacter;
+            if (local == null) return 0;
+
+            int localView = ViewIdOf(local);
+            if (local.player != null && CarriedBy(local.player) > 0) return localView;
+
+            Vector3 me = local.Center;
+            float bestDistance = float.MaxValue;
+            int best = 0;
+
+            foreach (var view in PhotonNetwork.PhotonViewCollection)
+            {
+                if (view == null || view.gameObject == null) continue;
+
+                var item = view.GetComponent<Item>();
+                if (item == null || item.holderCharacter != null) continue;
+                if (!BingBongSlot.IsBingBong(item)) continue;
+
+                float distance = Vector3.Distance(view.transform.position, me);
+                if (distance >= bestDistance) continue;
+
+                bestDistance = distance;
+                best = view.ViewID;
+            }
+
+            return best != 0 && bestDistance <= _settings().Audio.MaxDistance ? best : localView;
+        }
+
         /// <summary>Human-readable "where is this voice coming from", for the log.</summary>
         internal string Describe(int handle)
         {

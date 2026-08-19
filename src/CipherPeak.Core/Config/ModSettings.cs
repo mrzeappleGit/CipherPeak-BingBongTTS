@@ -28,6 +28,14 @@ namespace CipherPeak.Core.Config
         /// <summary>OAuth token, with or without the "oauth:" prefix. Empty = anonymous read-only login.</summary>
         public string OAuthToken = "";
 
+        /// <summary>
+        /// Read your own chat instead of listening to the host's, using your own channel, filters,
+        /// voices and API key. Only you hear it - your chat is never broadcast to the lobby - so this
+        /// costs nobody else anything and needs no agreement from the host. Off means the default:
+        /// the host owns the chat and everyone hears theirs.
+        /// </summary>
+        public bool UseMyOwnChat = false;
+
         public string Host = "irc.chat.twitch.tv";
         public int Port = 6697;
 
@@ -177,10 +185,11 @@ namespace CipherPeak.Core.Config
 
     public sealed class AudioSettings
     {
+        /// <summary>1 matches the game's own sounds; above that amplifies, up to a ceiling of 3.</summary>
         public double Volume = 1.0;
 
-        /// <summary>Distance at which the voice starts attenuating.</summary>
-        public double MinDistance = 3.0;
+        /// <summary>How far the voice carries at full volume before it starts falling off.</summary>
+        public double MinDistance = 10.0;
 
         /// <summary>Distance at which the voice is inaudible.</summary>
         public double MaxDistance = 60.0;

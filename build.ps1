@@ -21,7 +21,8 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $root = $PSScriptRoot
-$version = '1.0.0'
+# Single source of truth: the manifest Thunderstore actually reads.
+$version = (Get-Content "$root\package\manifest.json" -Raw | ConvertFrom-Json).version_number
 $pluginFolder = 'CipherPeak-BingBongTTS'
 
 $buildArgs = @("$root\CipherPeak.sln", '-c', $Configuration)

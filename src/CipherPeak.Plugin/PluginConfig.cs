@@ -20,7 +20,7 @@ namespace CipherPeak.Plugin
         private ConfigEntry<bool> _enabled;
 
         private ConfigEntry<string> _channel, _twitchUser, _twitchToken;
-        private ConfigEntry<bool> _allowInsecureTls;
+        private ConfigEntry<bool> _allowInsecureTls, _useOwnChat;
 
         private ConfigEntry<int> _minLength, _maxLength, _duplicateHistory;
         private ConfigEntry<string> _commandPrefixes, _ignoredUsers, _blockedWords;
@@ -78,7 +78,7 @@ namespace CipherPeak.Plugin
         public void SetVolume(float value)
         {
             if (_volume == null) return;
-            _volume.Value = Mathf.Clamp01(value);
+            _volume.Value = Mathf.Clamp(value, 0f, TtsPlaybackManager.MaxVolume);
             Rebuild();
         }
 
@@ -89,6 +89,11 @@ namespace CipherPeak.Plugin
             _enabled = _file.Bind("General", "Enabled", true,
                 "Master switch. When false no Twitch connection is made and no Bing Bongs are spawned.");
 
+            _useOwnChat = _file.Bind("Twitch", "UseMyOwnChat", false,
+                "Read your own Twitch chat instead of listening to the host's, using your own channel, " +
+                "filters, voices and API key. Only you hear it - your chat is never sent to the lobby - " +
+                "so it needs no agreement from the host. Ignored when you are the host, since the host " +
+                "already reads their own.");
             _channel = _file.Bind("Twitch", "Channel", "",
                 "Twitch channel to read, without the leading '#'.");
             _twitchUser = _file.Bind("Twitch", "Username", "",
@@ -182,8 +187,12 @@ namespace CipherPeak.Plugin
                 "The weight readout refreshes on the next pickup or drop, not the instant you change this.");
 
             _volume = _file.Bind("Audio", "Volume", 1f, new ConfigDescription(
-                "TTS volume, on top of the game's SFX slider.", new AcceptableValueRange<float>(0f, 1f)));
-            _minDistance = _file.Bind("Audio", "MinDistance", 3f, "Distance at which the voice starts attenuating.");
+                "TTS volume, on top of the game's SFX slider. 1 matches the game's own sounds; above " +
+                "that amplifies, and past about 2.5 it starts to clip.",
+                new AcceptableValueRange<float>(0f, TtsPlaybackManager.MaxVolume)));
+            _minDistance = _file.Bind("Audio", "MinDistance", 10f,
+                "Distance the voice stays at full volume before it starts falling off. Raising this is " +
+                "the most effective way to make Bing Bongs louder at normal ranges.");
             _audioMaxDistance = _file.Bind("Audio", "MaxDistance", 60f, "Distance at which the voice is inaudible.");
             _animateMouth = _file.Bind("Audio", "AnimateMouth", true, "Animate the Bing Bong's mouth to the speech.");
 
@@ -216,7 +225,8 @@ namespace CipherPeak.Plugin
                     Channel = (_channel.Value ?? "").Trim().TrimStart('#'),
                     Username = (_twitchUser.Value ?? "").Trim(),
                     OAuthToken = ResolveSecret(_twitchToken.Value, "CIPHERPEAK_TWITCH_OAUTH"),
-                    AllowInsecureTls = _allowInsecureTls.Value
+                    AllowInsecureTls = _allowInsecureTls.Value,
+                    UseMyOwnChat = _useOwnChat.Value
                 },
                 Filter =
                 {

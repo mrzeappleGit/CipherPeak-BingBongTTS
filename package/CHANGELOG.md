@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.0.1
+
+- `Twitch/UseMyOwnChat`: a player who is not hosting can read their own chat with their own channel,
+  filters, voices and key. It plays locally through a Bing Bong near them and is never sent to the
+  lobby, so it needs no agreement from the host. Default off: the host owns the chat.
+- Louder. `Audio/Volume` now goes to 3 rather than being capped at 1, where anything above 1
+  amplifies, and `Audio/MinDistance` defaults to 10 so the voice stays at full volume out to ten
+  metres before it starts falling off.
+
 ## 1.0.0
 
 - Two host-managed Bing Bongs spawned at the start of every playable run, replaced automatically

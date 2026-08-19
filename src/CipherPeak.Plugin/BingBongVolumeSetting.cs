@@ -27,7 +27,7 @@ namespace CipherPeak.Plugin
 
         protected override float GetDefaultValue() => ReadConfig();
 
-        protected override float2 GetMinMaxValue() => new float2(0f, 1f);
+        protected override float2 GetMinMaxValue() => new float2(0f, TtsPlaybackManager.MaxVolume);
 
         public string GetDisplayName() => "Bing Bong TTS Volume";
 

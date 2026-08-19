@@ -50,6 +50,7 @@ namespace CipherPeak.Plugin
         private float _nextLifecycleTick;
         private bool _wasInRun;
         private bool _wasHost;
+        private bool _wasDriving;
 
         private ModSettings Settings => _config.Settings;
 
@@ -126,39 +127,62 @@ namespace CipherPeak.Plugin
             bool enabled = Settings.Enabled;
             bool inRun = enabled && InPlayableRun;
             bool host = inRun && IsHost;
+            bool driving = inRun && (IsHost || Settings.Twitch.UseMyOwnChat);
 
             if (_wasInRun && !inRun) OnRunEnded();
+            if (_wasDriving && !driving) OnStoppedDrivingChat();
             if (_wasHost && !host) OnLostHost();
             if (!_wasHost && host) OnBecameHost();
+            if (!_wasDriving && driving) OnStartedDrivingChat();
 
             _wasInRun = inRun;
             _wasHost = host;
+            _wasDriving = driving;
 
-            if (!host) return;
-
-            DrainChat();
-
-            if (Time.unscaledTime >= _nextLifecycleTick)
+            if (host && Time.unscaledTime >= _nextLifecycleTick)
             {
                 _nextLifecycleTick = Time.unscaledTime + (float)Settings.BingBong.LifecycleTickSeconds;
                 try { _director.Tick(); }
                 catch (Exception ex) { _log.Error("Bing Bong lifecycle tick failed: " + ex.Message); }
             }
+
+            if (driving) DrainChat();
+        }
+
+        /// <summary>
+        /// True when this machine is reading a Twitch chat of its own. The host always is. A client
+        /// only is when it has opted in, and then its audio never leaves the machine.
+        /// </summary>
+        private bool DrivingChat => Settings.Enabled && InPlayableRun && (IsHost || Settings.Twitch.UseMyOwnChat);
+
+        /// <summary>Whether what this machine speaks should go out to the lobby, or stay local.</summary>
+        private bool BroadcastsSpeech => IsHost;
+
+        private void OnStartedDrivingChat()
+        {
+            _log.Info(IsHost
+                ? "Now hosting; connecting to Twitch for the lobby."
+                : "Reading your own Twitch chat; only you will hear it.");
+            _twitch.Start();
+        }
+
+        private void OnStoppedDrivingChat()
+        {
+            _log.Info("No longer reading Twitch; disconnecting.");
+            _twitch.Stop();
+            _queue.Reset();
+            _filter.Reset();
         }
 
         private void OnBecameHost()
         {
-            _log.Info("Now hosting; connecting to Twitch and taking over the Bing Bongs.");
-            _twitch.Start();
+            _log.Info("Taking over the Bing Bongs.");
             _nextLifecycleTick = 0f;   // reconcile immediately
         }
 
         private void OnLostHost()
         {
-            _log.Info("No longer hosting; disconnecting from Twitch. Bing Bongs stay with the new host.");
-            _twitch.Stop();
-            _queue.Reset();
-            _filter.Reset();
+            _log.Info("No longer hosting; Bing Bongs stay with the new host.");
             // Deliberately do NOT despawn: the new master client adopts them via the marker.
             _director.Forget();
         }
@@ -166,12 +190,16 @@ namespace CipherPeak.Plugin
         private void OnRunEnded()
         {
             _log.Info("Run ended; removing mod Bing Bongs and clearing the queue.");
-            try { _director.ReleaseAll(); }
-            catch (Exception ex) { _log.Warn("Cleanup on run end failed: " + ex.Message); }
+            if (IsHost)
+            {
+                try { _director.ReleaseAll(); }
+                catch (Exception ex) { _log.Warn("Cleanup on run end failed: " + ex.Message); }
+            }
 
             _queue.Reset();
             _filter.Reset();
-            _bus.BroadcastStop();
+            if (BroadcastsSpeech) _bus.BroadcastStop();
+            else _playback.StopAll();
         }
 
         private void HandleHotkeys()
@@ -208,7 +236,7 @@ namespace CipherPeak.Plugin
 
             while (true)
             {
-                if (_config == null || !Settings.Enabled || !IsHost || !InPlayableRun || _playback.IsBusy)
+                if (_config == null || !DrivingChat || _playback.IsBusy)
                 {
                     yield return wait;
                     continue;
@@ -240,9 +268,12 @@ namespace CipherPeak.Plugin
                 }
 
                 _log.Info("Speaking " + request.Login + "'s message through " + _world.Describe(speakerViewId) +
-                          " (" + result.Audio.Length + " bytes).");
+                          " (" + result.Audio.Length + " bytes" + (BroadcastsSpeech ? "" : ", locally") + ").");
 
-                yield return _bus.Broadcast(request.Id, speakerViewId, result.Audio);
+                if (BroadcastsSpeech)
+                    yield return _bus.Broadcast(request.Id, speakerViewId, result.Audio);
+                else
+                    _playback.Enqueue(request.Id, speakerViewId, result.Audio);   // your chat, your ears only
 
                 // RaiseEvent to ReceiverGroup.All round-trips through the Photon server, so our own
                 // copy lands a moment after sending. Wait for it to arrive before treating
@@ -278,6 +309,9 @@ namespace CipherPeak.Plugin
         /// </summary>
         private int PickSpeaker(SpeakerRotation rotation)
         {
+            // A client reading its own chat has no director handles - only the host manages Bing Bongs.
+            if (!IsHost) return _world.LocalSpeaker();
+
             var handles = _director.Handles;
             var available = new bool[handles.Count];
             for (int i = 0; i < handles.Count; i++)

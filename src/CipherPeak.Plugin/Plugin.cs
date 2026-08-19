@@ -12,7 +12,7 @@ namespace CipherPeak.Plugin
     {
         public const string Guid = "com.cipherpeak.bingbongtts";
         public const string Name = "CipherPeak Bing Bong TTS";
-        public const string Version = "1.0.0";
+        public const string Version = "1.0.1";
 
         private GameObject _host;
         private CipherPeakRunner _runner;
